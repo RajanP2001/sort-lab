@@ -19,11 +19,7 @@ export function selectionSortSteps(array: number[]): SortStep[] {
       steps.push({ type: "swap", indices: [i, minIdx] });
       [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
     }
-
-    steps.push({ type: "markSorted", index: i });
   }
-
-  steps.push({ type: "markSorted", index: n - 1 });
 
   return steps;
 }

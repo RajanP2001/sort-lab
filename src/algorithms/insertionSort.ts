@@ -5,8 +5,6 @@ export function insertionSortSteps(array: number[]): SortStep[] {
   const steps: SortStep[] = [];
   const n = arr.length;
 
-  steps.push({ type: "markSorted", index: 0 });
-
   for (let i = 1; i < n; i++) {
     let j = i;
 
@@ -20,8 +18,6 @@ export function insertionSortSteps(array: number[]): SortStep[] {
         break;
       }
     }
-
-    steps.push({ type: "markSorted", index: i });
   }
 
   return steps;

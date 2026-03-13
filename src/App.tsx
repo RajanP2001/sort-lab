@@ -20,11 +20,11 @@ function getBarColor(
   index: number,
   comparing: number[],
   swapping: number[],
-  sorted: number[],
+  isSorted: boolean,
 ): string {
-  if (sorted.includes(index)) return "#4ade80";
-  if (swapping.includes(index)) return "#f87171";
-  if (comparing.includes(index)) return "#facc15";
+  if (isSorted) return "#4ade80";
+  if (swapping.includes(index)) return "#ef4444";
+  if (comparing.includes(index)) return "#fbbf24";
   return "#38bdf8";
 }
 
@@ -36,7 +36,6 @@ function App() {
   const [isSorted, setIsSorted] = useState(false);
   const [comparing, setComparing] = useState<number[]>([]);
   const [swapping, setSwapping] = useState<number[]>([]);
-  const [sorted, setSorted] = useState<number[]>([]);
   const [speed, setSpeed] = useState(50);
   const [algorithm, setAlgorithm] = useState<AlgorithmKey>("bubble");
 
@@ -50,7 +49,6 @@ function App() {
     const newArray = generateRandomArray(ARRAY_SIZE, MIN_VALUE, MAX_VALUE);
     originalArrayRef.current = newArray;
     setArray(newArray);
-    setSorted([]);
     setComparing([]);
     setSwapping([]);
     setIsSorting(false);
@@ -60,7 +58,6 @@ function App() {
   function handleReset() {
     stopRef.current = true;
     setArray([...originalArrayRef.current]);
-    setSorted([]);
     setComparing([]);
     setSwapping([]);
     setIsSorting(false);
@@ -71,7 +68,6 @@ function App() {
     stopRef.current = false;
     setIsSorting(true);
     setIsSorted(false);
-    setSorted([]);
 
     const steps =
       algorithm === "bubble"
@@ -81,7 +77,6 @@ function App() {
           : insertionSortSteps(array);
 
     const arr = [...array];
-    const sortedIndices: number[] = [];
 
     for (const step of steps) {
       if (stopRef.current) break;
@@ -96,10 +91,6 @@ function App() {
         setArray([...arr]);
         await sleep(speedRef.current);
         setSwapping([]);
-      } else if (step.type === "markSorted") {
-        sortedIndices.push(step.index);
-        setSorted([...sortedIndices]);
-        setComparing([]);
       }
     }
 
@@ -128,7 +119,6 @@ function App() {
             onChange={(e) => {
               setAlgorithm(e.target.value as AlgorithmKey);
               setIsSorted(false);
-              setSorted([]);
               setComparing([]);
               setSwapping([]);
             }}
@@ -174,7 +164,7 @@ function App() {
               className="bar"
               style={{
                 height: `${value * 3}px`,
-                background: getBarColor(index, comparing, swapping, sorted),
+                background: getBarColor(index, comparing, swapping, isSorted),
               }}
               title={`Value: ${value}`}
             />

@@ -14,10 +14,7 @@ export function bubbleSortSteps(array: number[]): SortStep[] {
         [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
       }
     }
-    steps.push({ type: "markSorted", index: n - 1 - i });
   }
-
-  steps.push({ type: "markSorted", index: 0 });
 
   return steps;
 }
