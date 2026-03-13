@@ -2,11 +2,15 @@ import { useState, useRef } from "react";
 import "./App.css";
 import { generateRandomArray } from "./utils/generateRandomArray";
 import { bubbleSortSteps } from "./algorithms/bubbleSort";
+import { selectionSortSteps } from "./algorithms/selectionSort";
+import { insertionSortSteps } from "./algorithms/insertionSort";
 import { sleep } from "./utils/sleep";
 
 const ARRAY_SIZE = 36;
 const MIN_VALUE = 5;
 const MAX_VALUE = 100;
+
+type AlgorithmKey = "bubble" | "selection" | "insertion";
 
 function computeDelay(speed: number): number {
   return 505 - speed * 5;
@@ -34,6 +38,7 @@ function App() {
   const [swapping, setSwapping] = useState<number[]>([]);
   const [sorted, setSorted] = useState<number[]>([]);
   const [speed, setSpeed] = useState(50);
+  const [algorithm, setAlgorithm] = useState<AlgorithmKey>("bubble");
 
   const stopRef = useRef(false);
   const speedRef = useRef(computeDelay(50));
@@ -68,7 +73,13 @@ function App() {
     setIsSorted(false);
     setSorted([]);
 
-    const steps = bubbleSortSteps(array);
+    const steps =
+      algorithm === "bubble"
+        ? bubbleSortSteps(array)
+        : algorithm === "selection"
+          ? selectionSortSteps(array)
+          : insertionSortSteps(array);
+
     const arr = [...array];
     const sortedIndices: number[] = [];
 
@@ -111,8 +122,21 @@ function App() {
       <section className="controls">
         <div className="control-group">
           <label htmlFor="algorithm">Algorithm</label>
-          <select id="algorithm" disabled={isSorting}>
-            <option>Bubble Sort</option>
+          <select
+            id="algorithm"
+            value={algorithm}
+            onChange={(e) => {
+              setAlgorithm(e.target.value as AlgorithmKey);
+              setIsSorted(false);
+              setSorted([]);
+              setComparing([]);
+              setSwapping([]);
+            }}
+            disabled={isSorting}
+          >
+            <option value="bubble">Bubble Sort</option>
+            <option value="selection">Selection Sort</option>
+            <option value="insertion">Insertion Sort</option>
           </select>
         </div>
 
