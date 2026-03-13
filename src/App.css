@@ -50,6 +50,22 @@
   background: #1e293b;
   color: #e2e8f0;
   font-size: 0.95rem;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+}
+
+.controls button:hover:not(:disabled) {
+  background: #2d3f55;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
+}
+
+.controls button:active:not(:disabled) {
+  transform: translateY(0px);
+  box-shadow: none;
 }
 
 .controls button:disabled,
@@ -81,7 +97,7 @@
   width: 28px;
   background: #38bdf8;
   border-radius: 8px 8px 0 0;
-  transition: height 0.3s ease;
+  transition: background-color 0.05s ease;
 }
 
 .bar-label {
