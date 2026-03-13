@@ -1,22 +1,12 @@
 import { useState, useRef } from "react";
 import "./App.css";
 import { generateRandomArray } from "./utils/generateRandomArray";
-import { bubbleSortSteps } from "./algorithms/bubbleSort";
-import { selectionSortSteps } from "./algorithms/selectionSort";
-import { insertionSortSteps } from "./algorithms/insertionSort";
 import { sleep } from "./utils/sleep";
+import { ALGORITHMS, type AlgorithmKey } from "./engine/algorithmConfig";
 
 const ARRAY_SIZE = 36;
 const MIN_VALUE = 5;
 const MAX_VALUE = 100;
-
-type AlgorithmKey = "bubble" | "selection" | "insertion";
-
-const ALGORITHM_DESCRIPTIONS: Record<AlgorithmKey, string> = {
-  bubble: "Repeatedly compares adjacent elements and swaps them if they are out of order. Simple, but slow on large arrays.",
-  selection: "Scans the unsorted region to find the smallest element, then places it into the next sorted position.",
-  insertion: "Builds a sorted region one element at a time by shifting each new element left until it is in the right place.",
-};
 
 function computeDelay(speed: number): number {
   return 505 - speed * 5;
@@ -49,6 +39,7 @@ function App() {
   const speedRef = useRef(computeDelay(50));
 
   const sortDelay = computeDelay(speed);
+  const currentAlgorithm = ALGORITHMS.find((a) => a.key === algorithm)!;
 
   function handleGenerateArray() {
     stopRef.current = true;
@@ -75,12 +66,7 @@ function App() {
     setIsSorting(true);
     setIsSorted(false);
 
-    const steps =
-      algorithm === "bubble"
-        ? bubbleSortSteps(array)
-        : algorithm === "selection"
-          ? selectionSortSteps(array)
-          : insertionSortSteps(array);
+    const steps = currentAlgorithm.generateSteps(array);
 
     const arr = [...array];
 
@@ -130,11 +116,13 @@ function App() {
             }}
             disabled={isSorting}
           >
-            <option value="bubble">Bubble Sort</option>
-            <option value="selection">Selection Sort</option>
-            <option value="insertion">Insertion Sort</option>
+            {ALGORITHMS.map((a) => (
+              <option key={a.key} value={a.key}>
+                {a.label}
+              </option>
+            ))}
           </select>
-          <p className="algorithm-description">{ALGORITHM_DESCRIPTIONS[algorithm]}</p>
+          <p className="algorithm-description">{currentAlgorithm.description}</p>
         </div>
 
         <div className="control-group">
