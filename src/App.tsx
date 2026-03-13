@@ -55,6 +55,7 @@ function App() {
     setIsSorted(false);
   }
 
+  const sortDelay = Math.round(205 - speed * 2);
   async function handleStartSorting() {
     stopRef.current = false;
     setIsSorting(true);
@@ -70,13 +71,13 @@ function App() {
 
       if (step.type === "compare") {
         setComparing([...step.indices]);
-        await sleep(speed);
+        await sleep(sortDelay);
       } else if (step.type === "swap") {
         setSwapping([...step.indices]);
         const [i, j] = step.indices;
         [arr[i], arr[j]] = [arr[j], arr[i]];
         setArray([...arr]);
-        await sleep(speed);
+        await sleep(sortDelay);
         setSwapping([]);
       } else if (step.type === "markSorted") {
         sortedIndices.push(step.index);
@@ -91,8 +92,6 @@ function App() {
       setIsSorted(true);
     }
   }
-
-  const sortDelay = Math.round(205 - speed * 2);
 
   return (
     <div className="app">
@@ -112,7 +111,7 @@ function App() {
         </div>
 
         <div className="control-group">
-          <label htmlFor="speed">Speed: {sortDelay}ms</label>
+          <label htmlFor="speed">Delay: {sortDelay}ms</label>
           <input
             id="speed"
             type="range"
