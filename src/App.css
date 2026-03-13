@@ -104,3 +104,9 @@
   font-size: 0.8rem;
   color: #cbd5e1;
 }
+
+input[type="range"] {
+  accent-color: #38bdf8;
+  cursor: pointer;
+  width: 120px;
+}
