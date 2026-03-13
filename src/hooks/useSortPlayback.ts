@@ -56,6 +56,12 @@ export function useSortPlayback() {
         setArray([...arr]);
         await sleep(speedRef.current);
         setSwapping([]);
+      } else if (step.type === "overwrite") {
+        setSwapping([step.index]);
+        arr[step.index] = step.value;
+        setArray([...arr]);
+        await sleep(speedRef.current);
+        setSwapping([]);
       }
     }
 
