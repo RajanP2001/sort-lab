@@ -1,110 +1,48 @@
 import { useState, useRef } from "react";
 import "./App.css";
 import { generateRandomArray } from "./utils/generateRandomArray";
-import { bubbleSortSteps } from "./algorithms/bubbleSort";
-import { selectionSortSteps } from "./algorithms/selectionSort";
-import { insertionSortSteps } from "./algorithms/insertionSort";
-import { sleep } from "./utils/sleep";
+import { ALGORITHMS, type AlgorithmKey } from "./engine/algorithmConfig";
+import { useSortPlayback } from "./hooks/useSortPlayback";
+import BarChart from "./components/BarChart";
 
 const ARRAY_SIZE = 36;
 const MIN_VALUE = 5;
 const MAX_VALUE = 100;
 
-type AlgorithmKey = "bubble" | "selection" | "insertion";
-
-const ALGORITHM_DESCRIPTIONS: Record<AlgorithmKey, string> = {
-  bubble: "Repeatedly compares adjacent elements and swaps them if they are out of order. Simple, but slow on large arrays.",
-  selection: "Scans the unsorted region to find the smallest element, then places it into the next sorted position.",
-  insertion: "Builds a sorted region one element at a time by shifting each new element left until it is in the right place.",
-};
-
-function computeDelay(speed: number): number {
-  return 505 - speed * 5;
-}
-
-function getBarColor(
-  index: number,
-  comparing: number[],
-  swapping: number[],
-  isSorted: boolean,
-): string {
-  if (isSorted) return "#4ade80";
-  if (swapping.includes(index)) return "#ef4444";
-  if (comparing.includes(index)) return "#fbbf24";
-  return "#38bdf8";
-}
-
 function App() {
   const initialArray = generateRandomArray(ARRAY_SIZE, MIN_VALUE, MAX_VALUE);
   const [array, setArray] = useState<number[]>(initialArray);
   const originalArrayRef = useRef<number[]>(initialArray);
-  const [isSorting, setIsSorting] = useState(false);
-  const [isSorted, setIsSorted] = useState(false);
-  const [comparing, setComparing] = useState<number[]>([]);
-  const [swapping, setSwapping] = useState<number[]>([]);
-  const [speed, setSpeed] = useState(50);
   const [algorithm, setAlgorithm] = useState<AlgorithmKey>("bubble");
 
-  const stopRef = useRef(false);
-  const speedRef = useRef(computeDelay(50));
+  const {
+    isSorting,
+    isSorted,
+    comparing,
+    swapping,
+    speed,
+    sortDelay,
+    setSpeed,
+    cancel,
+    startSorting,
+  } = useSortPlayback();
 
-  const sortDelay = computeDelay(speed);
+  const currentAlgorithm = ALGORITHMS.find((a) => a.key === algorithm)!;
 
   function handleGenerateArray() {
-    stopRef.current = true;
+    cancel();
     const newArray = generateRandomArray(ARRAY_SIZE, MIN_VALUE, MAX_VALUE);
     originalArrayRef.current = newArray;
     setArray(newArray);
-    setComparing([]);
-    setSwapping([]);
-    setIsSorting(false);
-    setIsSorted(false);
   }
 
   function handleReset() {
-    stopRef.current = true;
+    cancel();
     setArray([...originalArrayRef.current]);
-    setComparing([]);
-    setSwapping([]);
-    setIsSorting(false);
-    setIsSorted(false);
   }
 
-  async function handleStartSorting() {
-    stopRef.current = false;
-    setIsSorting(true);
-    setIsSorted(false);
-
-    const steps =
-      algorithm === "bubble"
-        ? bubbleSortSteps(array)
-        : algorithm === "selection"
-          ? selectionSortSteps(array)
-          : insertionSortSteps(array);
-
-    const arr = [...array];
-
-    for (const step of steps) {
-      if (stopRef.current) break;
-
-      if (step.type === "compare") {
-        setComparing([...step.indices]);
-        await sleep(speedRef.current);
-      } else if (step.type === "swap") {
-        setSwapping([...step.indices]);
-        const [i, j] = step.indices;
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-        setArray([...arr]);
-        await sleep(speedRef.current);
-        setSwapping([]);
-      }
-    }
-
-    if (!stopRef.current) {
-      setComparing([]);
-      setIsSorting(false);
-      setIsSorted(true);
-    }
+  function handleStartSorting() {
+    startSorting(array, setArray, currentAlgorithm.generateSteps);
   }
 
   return (
@@ -123,18 +61,18 @@ function App() {
             id="algorithm"
             value={algorithm}
             onChange={(e) => {
+              cancel();
               setAlgorithm(e.target.value as AlgorithmKey);
-              setIsSorted(false);
-              setComparing([]);
-              setSwapping([]);
             }}
             disabled={isSorting}
           >
-            <option value="bubble">Bubble Sort</option>
-            <option value="selection">Selection Sort</option>
-            <option value="insertion">Insertion Sort</option>
+            {ALGORITHMS.map((a) => (
+              <option key={a.key} value={a.key}>
+                {a.label}
+              </option>
+            ))}
           </select>
-          <p className="algorithm-description">{ALGORITHM_DESCRIPTIONS[algorithm]}</p>
+          <p className="algorithm-description">{currentAlgorithm.description}</p>
         </div>
 
         <div className="control-group">
@@ -145,11 +83,7 @@ function App() {
             min={1}
             max={100}
             value={speed}
-            onChange={(e) => {
-              const val = Number(e.target.value);
-              setSpeed(val);
-              speedRef.current = computeDelay(val);
-            }}
+            onChange={(e) => setSpeed(Number(e.target.value))}
           />
         </div>
 
@@ -164,35 +98,12 @@ function App() {
         </button>
       </section>
 
-      <section className="visualizer">
-        {array.map((value, index) => (
-          <div key={index} className="bar-wrapper">
-            <div
-              className="bar"
-              style={{
-                height: `${value * 3}px`,
-                background: getBarColor(index, comparing, swapping, isSorted),
-              }}
-              title={`Value: ${value}`}
-            />
-          </div>
-        ))}
-      </section>
-
-      <div className="legend">
-        <div className="legend__item">
-          <span className="legend__dot" style={{ background: "#fbbf24" }} />
-          <span>Comparing</span>
-        </div>
-        <div className="legend__item">
-          <span className="legend__dot" style={{ background: "#ef4444" }} />
-          <span>Swapping</span>
-        </div>
-        <div className="legend__item">
-          <span className="legend__dot" style={{ background: "#4ade80" }} />
-          <span>Sorted</span>
-        </div>
-      </div>
+      <BarChart
+        array={array}
+        comparing={comparing}
+        swapping={swapping}
+        isSorted={isSorted}
+      />
     </div>
   );
 }
