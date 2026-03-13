@@ -2,8 +2,17 @@ import type { SortStep } from "./sortingTypes";
 import { bubbleSortSteps } from "../algorithms/bubbleSort";
 import { selectionSortSteps } from "../algorithms/selectionSort";
 import { insertionSortSteps } from "../algorithms/insertionSort";
+import { mergeSortSteps } from "../algorithms/mergeSort";
+import { quickSortSteps } from "../algorithms/quickSort";
+import { heapSortSteps } from "../algorithms/heapSort";
 
-export type AlgorithmKey = "bubble" | "selection" | "insertion";
+export type AlgorithmKey =
+  | "bubble"
+  | "selection"
+  | "insertion"
+  | "merge"
+  | "quick"
+  | "heap";
 
 export interface AlgorithmConfig {
   key: AlgorithmKey;
@@ -33,5 +42,26 @@ export const ALGORITHMS: AlgorithmConfig[] = [
     description:
       "Builds a sorted region one element at a time by shifting each new element left until it is in the right place.",
     generateSteps: insertionSortSteps,
+  },
+  {
+    key: "merge",
+    label: "Merge Sort",
+    description:
+      "Divides the array in half repeatedly, then merges the halves back together in sorted order.",
+    generateSteps: mergeSortSteps,
+  },
+  {
+    key: "quick",
+    label: "Quick Sort",
+    description:
+      "Picks a pivot element and partitions the array so smaller elements go left and larger go right, then recurses on each side.",
+    generateSteps: quickSortSteps,
+  },
+  {
+    key: "heap",
+    label: "Heap Sort",
+    description:
+      "Builds a max-heap from the array, then repeatedly extracts the largest element and places it at the end.",
+    generateSteps: heapSortSteps,
   },
 ];
