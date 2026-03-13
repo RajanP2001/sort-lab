@@ -12,6 +12,12 @@ const MAX_VALUE = 100;
 
 type AlgorithmKey = "bubble" | "selection" | "insertion";
 
+const ALGORITHM_DESCRIPTIONS: Record<AlgorithmKey, string> = {
+  bubble: "Repeatedly compares adjacent elements and swaps them if they are out of order. Simple, but slow on large arrays.",
+  selection: "Scans the unsorted region to find the smallest element, then places it into the next sorted position.",
+  insertion: "Builds a sorted region one element at a time by shifting each new element left until it is in the right place.",
+};
+
 function computeDelay(speed: number): number {
   return 505 - speed * 5;
 }
@@ -128,6 +134,7 @@ function App() {
             <option value="selection">Selection Sort</option>
             <option value="insertion">Insertion Sort</option>
           </select>
+          <p className="algorithm-description">{ALGORITHM_DESCRIPTIONS[algorithm]}</p>
         </div>
 
         <div className="control-group">
@@ -171,6 +178,21 @@ function App() {
           </div>
         ))}
       </section>
+
+      <div className="legend">
+        <div className="legend__item">
+          <span className="legend__dot" style={{ background: "#fbbf24" }} />
+          <span>Comparing</span>
+        </div>
+        <div className="legend__item">
+          <span className="legend__dot" style={{ background: "#ef4444" }} />
+          <span>Swapping</span>
+        </div>
+        <div className="legend__item">
+          <span className="legend__dot" style={{ background: "#4ade80" }} />
+          <span>Sorted</span>
+        </div>
+      </div>
     </div>
   );
 }
