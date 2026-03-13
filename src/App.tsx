@@ -21,9 +21,9 @@ function getBarColor(
 }
 
 function App() {
-  const [array, setArray] = useState<number[]>(() =>
-    generateRandomArray(ARRAY_SIZE, MIN_VALUE, MAX_VALUE),
-  );
+  const initialArray = generateRandomArray(ARRAY_SIZE, MIN_VALUE, MAX_VALUE);
+  const [array, setArray] = useState<number[]>(initialArray);
+  const originalArrayRef = useRef<number[]>(initialArray);
   const [isSorting, setIsSorting] = useState(false);
   const [isSorted, setIsSorted] = useState(false);
   const [comparing, setComparing] = useState<number[]>([]);
@@ -32,7 +32,6 @@ function App() {
   const [speed, setSpeed] = useState(50);
 
   const stopRef = useRef(false);
-  const originalArrayRef = useRef<number[]>([]);
 
   function handleGenerateArray() {
     stopRef.current = true;
