@@ -8,6 +8,10 @@ const ARRAY_SIZE = 36;
 const MIN_VALUE = 5;
 const MAX_VALUE = 100;
 
+function computeDelay(speed: number): number {
+  return 505 - speed * 5;
+}
+
 function getBarColor(
   index: number,
   comparing: number[],
@@ -32,6 +36,9 @@ function App() {
   const [speed, setSpeed] = useState(50);
 
   const stopRef = useRef(false);
+  const speedRef = useRef(computeDelay(50));
+
+  const sortDelay = computeDelay(speed);
 
   function handleGenerateArray() {
     stopRef.current = true;
@@ -55,7 +62,6 @@ function App() {
     setIsSorted(false);
   }
 
-  const sortDelay = Math.round(205 - speed * 2);
   async function handleStartSorting() {
     stopRef.current = false;
     setIsSorting(true);
@@ -71,13 +77,13 @@ function App() {
 
       if (step.type === "compare") {
         setComparing([...step.indices]);
-        await sleep(sortDelay);
+        await sleep(speedRef.current);
       } else if (step.type === "swap") {
         setSwapping([...step.indices]);
         const [i, j] = step.indices;
         [arr[i], arr[j]] = [arr[j], arr[i]];
         setArray([...arr]);
-        await sleep(sortDelay);
+        await sleep(speedRef.current);
         setSwapping([]);
       } else if (step.type === "markSorted") {
         sortedIndices.push(step.index);
@@ -118,8 +124,11 @@ function App() {
             min={1}
             max={100}
             value={speed}
-            onChange={(e) => setSpeed(Number(e.target.value))}
-            disabled={isSorting}
+            onChange={(e) => {
+              const val = Number(e.target.value);
+              setSpeed(val);
+              speedRef.current = computeDelay(val);
+            }}
           />
         </div>
 
